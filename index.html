@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zexxy FF Like API</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #05060a;
+    --panel: #0e1220;
+    --border: #1a1f33;
+    --text: #d8dce6;
+    --muted: #6b7280;
+    --cyan: #00e5ff;
+    --pink: #ff2e9a;
+    --purple: #a855f7;
+    --green: #22ff88;
+    --yellow: #ffd60a;
+  }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* grid backdrop */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0, 229, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 229, 255, 0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* vertical scan line that travels down the page */
+  body::after {
+    content: "";
+    position: fixed;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.6), transparent);
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.5);
+    pointer-events: none;
+    z-index: 2;
+    animation: scanDown 9s linear infinite;
+  }
+  @keyframes scanDown {
+    0%   { top: -2px; opacity: 0; }
+    5%   { opacity: 1; }
+    95%  { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 48px 24px 60px;
+  }
+
+  /* header */
+  .head { text-align: center; margin-bottom: 42px; }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(34, 255, 136, 0.06);
+    border: 1px solid rgba(34, 255, 136, 0.35);
+    color: var(--green);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    padding: 8px 18px;
+    border-radius: 4px;
+    margin-bottom: 22px;
+    text-shadow: 0 0 10px rgba(34, 255, 136, 0.6);
+    box-shadow: 0 0 14px rgba(34, 255, 136, 0.12);
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green), 0 0 16px var(--green);
+    animation: pulse 1.6s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.4; transform: scale(0.85); }
+  }
+
+  /* title with flowing sweep gradient */
+  h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: 38px;
+    letter-spacing: 3px;
+    margin-bottom: 8px;
+    background: linear-gradient(
+      90deg,
+      #ffffff 0%,
+      #ffffff 20%,
+      var(--cyan) 40%,
+      var(--pink) 55%,
+      #ffffff 75%,
+      #ffffff 100%
+    );
+    background-size: 250% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: textFlow 6s linear infinite;
+    filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.4))
+            drop-shadow(0 0 20px rgba(255, 46, 154, 0.25));
+  }
+  @keyframes textFlow {
+    0%   { background-position: 100% 0; }
+    100% { background-position: -150% 0; }
+  }
+  h1 span { -webkit-text-fill-color: var(--cyan); color: var(--cyan); }
+
+  .sub {
+    color: var(--muted);
+    font-size: 14px;
+    letter-spacing: 0.5px;
+  }
+
+  /* stat cards */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 36px;
+  }
+  .stat {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 2px;
+    background: linear-gradient(90deg, var(--cyan), var(--pink), var(--purple), var(--cyan));
+    background-size: 300% 100%;
+    box-shadow: 0 0 12px rgba(0, 229, 255, 0.7);
+    animation: barFlow 4s linear infinite;
+  }
+  @keyframes barFlow {
+    0%   { background-position: 0% 0; }
+    100% { background-position: 300% 0; }
+  }
+  .stat .k {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .stat .v {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .stat .v.online {
+    color: var(--green);
+    text-shadow: 0 0 8px rgba(34, 255, 136, 0.5);
+  }
+
+  /* section title */
+  .sec {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    color: var(--cyan);
+    text-transform: uppercase;
+    margin: 34px 0 14px;
+    text-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+  }
+  .sec::before {
+    content: "";
+    width: 4px; height: 14px;
+    background: var(--cyan);
+    box-shadow: 0 0 10px var(--cyan);
+    border-radius: 1px;
+    animation: pulse 2s infinite;
+  }
+  .sec::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+
+  /* endpoint cards with rotating light border */
+  .ep {
+    position: relative;
+    background: var(--panel);
+    border-radius: 6px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    overflow: hidden;
+  }
+  /* rotating conic light behind the card */
+  .ep::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 8px;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0%,
+      var(--purple) 15%,
+      var(--cyan) 25%,
+      transparent 40%,
+      transparent 100%
+    );
+    animation: spinBorder 5s linear infinite;
+    z-index: 0;
+    opacity: 0.7;
+    filter: blur(2px);
+  }
+  /* inner panel sits on top */
+  .ep::after {
+    content: "";
+    position: absolute;
+    inset: 1px;
+    border-radius: 5px;
+    background: var(--panel);
+    z-index: 0;
+  }
+  .ep > * { position: relative; z-index: 1; }
+  .ep:hover::before {
+    animation-duration: 1.5s;
+    opacity: 1;
+    filter: blur(3px);
+  }
+  @keyframes spinBorder {
+    to { transform: rotate(360deg); }
+  }
+
+  .ep .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .ep .m {
+    color: var(--green);
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-shadow: 0 0 6px rgba(34, 255, 136, 0.6);
+  }
+  .ep .p {
+    color: var(--yellow);
+    font-weight: 600;
+    font-size: 14px;
+    text-shadow: 0 0 6px rgba(255, 214, 10, 0.4);
+  }
+  .ep .d {
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 6px;
+    padding-left: 2px;
+  }
+
+  /* ALL SERVERS WORKING — flowing gradient + moving shine */
+  .servers-ok {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    padding: 22px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 3px;
+    color: var(--green);
+    text-shadow:
+      0 0 8px rgba(34, 255, 136, 0.7),
+      0 0 20px rgba(34, 255, 136, 0.4);
+    border: 1px solid rgba(34, 255, 136, 0.35);
+    background: linear-gradient(
+      90deg,
+      rgba(34, 255, 136, 0.04) 0%,
+      rgba(0, 229, 255, 0.10) 25%,
+      rgba(34, 255, 136, 0.20) 50%,
+      rgba(0, 229, 255, 0.10) 75%,
+      rgba(34, 255, 136, 0.04) 100%
+    );
+    background-size: 300% 100%;
+    animation: bannerFlow 5s linear infinite;
+    box-shadow:
+      0 0 24px rgba(34, 255, 136, 0.12),
+      inset 0 0 24px rgba(34, 255, 136, 0.05);
+  }
+  /* light sweep across the banner */
+  .servers-ok::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -60%;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.0) 20%,
+      rgba(34, 255, 136, 0.35) 50%,
+      rgba(255, 255, 255, 0.0) 80%,
+      transparent 100%
+    );
+    transform: skewX(-20deg);
+    animation: bannerSweep 4s ease-in-out infinite;
+  }
+  .servers-ok > * { position: relative; z-index: 1; }
+
+  @keyframes bannerFlow {
+    0%   { background-position: 0% 0; }
+    100% { background-position: 300% 0; }
+  }
+  @keyframes bannerSweep {
+    0%   { left: -60%; }
+    60%  { left: 120%; }
+    100% { left: 120%; }
+  }
+  .servers-ok .dot {
+    width: 10px;
+    height: 10px;
+    background: var(--green);
+    box-shadow: 0 0 10px var(--green), 0 0 20px var(--green);
+  }
+
+  /* button with rotating light + sweep */
+  .btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 13px 24px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--cyan);
+    background: var(--panel);
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .btn::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 8px;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0%,
+      var(--cyan) 20%,
+      var(--pink) 35%,
+      transparent 55%,
+      transparent 100%
+    );
+    animation: spinBorder 3s linear infinite;
+    z-index: -2;
+    filter: blur(3px);
+    opacity: 0.8;
+  }
+  .btn::after {
+    content: "";
+    position: absolute;
+    inset: 1px;
+    border-radius: 5px;
+    background: var(--panel);
+    z-index: -1;
+  }
+  .btn:hover {
+    color: #fff;
+    text-shadow: 0 0 10px var(--cyan);
+  }
+  .btn:hover::before {
+    animation-duration: 1s;
+    opacity: 1;
+  }
+
+  /* footer */
+  .foot {
+    margin-top: 48px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+  }
+  .foot b {
+    color: var(--pink);
+    text-shadow: 0 0 8px rgba(255, 46, 154, 0.6);
+    animation: pulse 2.4s infinite;
+  }
+
+  @media (max-width: 640px) {
+    h1 { font-size: 24px; letter-spacing: 1.5px; }
+    .stats { grid-template-columns: repeat(3, 1fr); }
+    .servers-ok { font-size: 13px; letter-spacing: 1.5px; padding: 18px 12px; }
+    .wrap { padding: 32px 16px 48px; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+
+    <div class="head">
+      <div class="badge"><span class="dot"></span> API RUNNING</div>
+      <h1>ZEXXY <span>FF</span> LIKE API</h1>
+      <p class="sub">Multi-server like sender &middot; Flask + aiohttp</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="k">Version</div><div class="v">{{VERSION}}</div></div>
+      <div class="stat"><div class="k">Status</div><div class="v online">ONLINE</div></div>
+      <div class="stat"><div class="k">Time</div><div class="v" style="font-size:13px;">{{TIME}}</div></div>
+    </div>
+
+    <div class="sec">Endpoints</div>
+    <div class="ep">
+      <div class="row"><span class="m">GET</span><span class="p">/like</span></div>
+      <span class="d">?uid=&lt;player_uid&gt;&amp;region=&lt;REGION&gt;</span>
+    </div>
+    <div class="ep">
+      <div class="row"><span class="m">GET</span><span class="p">/status</span></div>
+      <span class="d">health check, returns JSON</span>
+    </div>
+
+    <div class="sec">Server Status</div>
+    <div class="servers-ok"><span class="dot"></span> ALL SERVERS WORKING</div>
+
+    <div class="sec">Quick Test</div>
+    <a class="btn" href="/like?uid=123456789&region=IND" target="_blank">
+      &gt; send test request
+    </a>
+
+    <div class="foot">
+      <b>ZEXXY</b> &middot; ALL RIGHTS RESERVED
+    </div>
+
+  </div>
+</body>
+</html>
