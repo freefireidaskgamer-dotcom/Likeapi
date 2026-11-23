@@ -1,0 +1,8 @@
+[
+  {
+    "token": "FIRST_JWT_TOKEN"
+  },
+  {
+    "token": "SECOND_JWT_TOKEN"
+  }
+]
